@@ -8,6 +8,7 @@ es:
     host: 10.0.1.91
     # 这里 你的  端口
     port: 9200
+  #
   backup:
     index: 2019062410
   # 注意  true 为 恢复数据,false 为 备份数据,默认为 false
