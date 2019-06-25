@@ -4,13 +4,14 @@
 每当elasticsearch 断电或者数据锁坏时，此时 重启es就特别麻烦，es 状态为 red，尤其是还原数据，
 有鉴于此，所以需要对es 数据进行备份还原。
 ---
-## 首先修改elasticsearch 配置文件application.yml
+## 首先修改elasticsearch 配置文件 elasticsearch.yml
 添加一行 path.repo: ["/usr/local/elasticsearch/snapshot"]
 
 此路径为 es 快照路径， /usr/local/elasticsearch 在这一部分为你的 es 路径所在。
+重启es。
 
 ## 修改下 ip 和 端口
-
+# 注意：application.yml 的 lock 属性，如果为 备份 一定要设置成 false，如果 为 恢复 设置成 true 
 ---
 ## 备份
 修改 application.yml 配置文件,运行即可
@@ -30,6 +31,6 @@
 #### 恢复日志信息
 出现: '数据恢复完成' , 则恢复成功,es 状态应显示为 green,如果不是,请稍等一会.
 
-## 启动命令
+## 运行命令
 java -jar elasticsearch-back.jar
 
