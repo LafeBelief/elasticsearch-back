@@ -4,11 +4,16 @@ server:
 
 es:
   ip:
-    # 这里 你的  ip:端口
+    # 这里 你的  ip:
     host: 10.0.1.91
     # 这里 你的  端口
-    port: 9200
+    port: 9210
+
+  #  --------------------- 备份数据 -------------------------------
+  # 对应 elasticsearch.yml 的  path.repo 路径
   back:
     location: /usr/local/elasticsearch/snapshot
-  # 注意  true 为 恢复数据,false 为 备份数据,默认为 false
+
+  #  --------------------- 恢复数据 --------------------------------
+  #  true 为 恢复数据,false 为 备份数据,默认为 false
   lock: true
