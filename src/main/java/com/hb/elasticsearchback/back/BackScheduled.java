@@ -35,10 +35,11 @@ public class BackScheduled {
     @Value("${es.lock}")
     private Boolean esLock;
 
-    @Value("${es.backup.index}")
-    private String esBackupIndex;
+    @Value("${es.back.location}")
+    private String esBackLocation;
 
-
+    private boolean check = false;
+    private String ipPort = "";
     private Log log = LogFactory.get(BackScheduled.class);
 
     /**
@@ -55,13 +56,17 @@ public class BackScheduled {
         }
         if (esLock != null && esLock) {
             RestoreScheduled restoreScheduled = new RestoreScheduled();
-            restoreScheduled.restoreData(esIpHost, esIpPort, esBackupIndex);
+            restoreScheduled.restoreData(ipPort);
             return;
+        }
+        if (!check) {
+            this.checkEsBackSnapshot();
+            ipPort = esIpHost + ":" + esIpPort;
         }
 
         log.info("es 数据备份,开始执行...");
         String indexName = DateUtil.format(new Date(), "yyyyMMddHH");
-        HttpRequest request = HttpUtil.createRequest(Method.DELETE, esIpHost + ":" + esIpPort + "/_snapshot/backup/" + indexName + "?pretty");
+        HttpRequest request = HttpUtil.createRequest(Method.DELETE, ipPort + "/_snapshot/backup/" + indexName + "?pretty");
         HttpResponse execute = request.execute();
         log.info("删除当前索引:\t{},返回信息:\n{}", indexName, execute.body());
         try {
@@ -69,8 +74,26 @@ public class BackScheduled {
         } catch (InterruptedException e) {
             log.error("线程延时错误{}", e.getMessage());
         }
-        request = HttpUtil.createRequest(Method.PUT, esIpHost + ":" + esIpPort + "/_snapshot/backup/" + indexName + "?wait_for_completion=true");
+        request = HttpUtil.createRequest(Method.PUT, ipPort + "/_snapshot/backup/" + indexName + "?wait_for_completion=true");
         execute = request.execute();
         log.info("增量任务备份完成,索引为:\t{},返回信息:\n{}", indexName, execute.body());
+    }
+
+    private void checkEsBackSnapshot() {
+
+        if (StringUtils.isEmpty(esBackLocation)) {
+            log.info("配置文件错误,请检查 location .........");
+            System.exit(0);
+        }
+        HttpResponse execute = HttpUtil
+                .createRequest(Method.PUT, "http://" + esIpHost + ":" + esIpPort + "/_snapshot/backup")
+                .body("{\"type\": \"fs\", \"settings\": {\"location\":\"" + esBackLocation + "\" }}")
+                .execute();
+        String body = execute.body();
+        if (StringUtils.isEmpty(body) || !body.contains("acknowledged") || !body.contains("true")) {
+            log.info("配置文件错误,请检查 location .........");
+            System.exit(0);
+        }
+        check = true;
     }
 }
