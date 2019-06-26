@@ -38,7 +38,7 @@ public class RestoreScheduled {
         try {
             HttpResponse execute = HttpUtil.createGet("http://" + ipPort + "/_snapshot/backup/_all").execute();
             String body = execute.body();
-            if (!body.contains("include_global_state") || !body.contains("snapshot") || !body.contains("uuid")) {
+            if ( !body.contains("snapshot") || !body.contains("uuid")) {
                 log.info("elasticsearch 备份索引错误 ....");
                 System.exit(0);
             }

@@ -56,12 +56,12 @@ public class BackScheduled {
         }
         if (esLock != null && esLock) {
             RestoreScheduled restoreScheduled = new RestoreScheduled();
-            restoreScheduled.restoreData(ipPort);
+            restoreScheduled.restoreData(esIpHost + ":" + esIpPort);
             return;
         }
         if (!check) {
-            this.checkEsBackSnapshot();
             ipPort = esIpHost + ":" + esIpPort;
+            this.checkEsBackSnapshot();
         }
 
         log.info("es 数据备份,开始执行...");
